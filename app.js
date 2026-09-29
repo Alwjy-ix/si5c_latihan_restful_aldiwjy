@@ -1,6 +1,6 @@
-require('dotenv').config(); // baris pertama
+require("dotenv").config(); // baris pertama
 const express = require("express"); // import express
-const cors = require('cors');
+const cors = require("cors");
 const app = express(); // instansiasi
 const PORT = process.env.PORT || 3000; // PORT yang akan digunakan
 
@@ -12,10 +12,23 @@ function logger(req, res, next) {
 
 // Didaftarkan sebelum route agar mencatat seluruh request
 app.use(logger);
-app.use(cors({// cors dimasukkan
-  origin: process.env.CORS_ORIGIN,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-}));
+app.use(
+  cors({
+    // cors dimasukkan
+    origin: process.env.CORS_ORIGIN,
+    methods: ["GET", "POST", "PUT", "DELETE"],
+  }),
+);
+
+function cekApiKey(req, res, next) {
+  const apiKey = req.headers["x-api-key"];
+
+  if (apiKey !== process.env.API_KEY) {
+    return res.status(401).json({ message: "API key tidak valid" });
+  }
+  next();
+}
+
 // Middleware agar req.body (JSON) dapat dibaca
 app.use(express.json());
 // Data sementara (disimpan di memori, hilang saat server restart)
@@ -53,7 +66,7 @@ app.get("/mahasiswa/:id", (req, res) => {
 
 // POST /mahasiswa
 // Body: { "nama": "Citra", "jurusan": "Sistem Informasi" }
-app.post("/mahasiswa", (req, res) => {
+app.post("/mahasiswa", cekApiKey,(req, res) => {
   const { nama, jurusan } = req.body;
 
   if (!nama || !jurusan) {
@@ -68,7 +81,7 @@ app.post("/mahasiswa", (req, res) => {
 
 // PUT /mahasiswa/2
 // Body: { "nama": "Budi Santoso", "jurusan": "Informatika" }
-app.put("/mahasiswa/:id", (req, res) => {
+app.put("/mahasiswa/:id", cekApiKey,(req, res) => {
   const id = parseInt(req.params.id);
   const index = mahasiswa.findIndex((m) => m.id === id);
 
@@ -81,7 +94,7 @@ app.put("/mahasiswa/:id", (req, res) => {
 });
 
 // DELETE /mahasiswa/2
-app.delete("/mahasiswa/:id", (req, res) => {
+app.delete("/mahasiswa/:id", cekApiKey,(req, res) => {
   const id = parseInt(req.params.id);
   const index = mahasiswa.findIndex((m) => m.id === id);
 
