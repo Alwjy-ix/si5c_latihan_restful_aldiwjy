@@ -33,7 +33,8 @@ const { notFoundHandler, errorHandler } = require('./middlewares/errorHandler');
 
 const mahasiswaRoutes = require('./routes/mahasiswaRoutes');
 const fakultasRoutes = require('./routes/fakultasRoutes');
-const prodiRoutes = require('./routes/prodiRoutes');
+const prodiRoutes = require('./routes/prodiRoutes');   // bersama require lainnya
+
 
 // ---------- Middleware global ----------
 app.use(logger);
@@ -48,7 +49,7 @@ app.use(express.json());
 // ---------- Route dasar ----------
 app.use('/mahasiswa', mahasiswaRoutes);
 app.use('/fakultas', fakultasRoutes);
-app.use('/prodi', prodiRoutes);
+app.use('/prodi', prodiRoutes);                 
 app.use(express.json());
 
 // ---------- Route dasar ----------
