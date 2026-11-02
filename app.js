@@ -1,11 +1,8 @@
-require('dotenv').config(); //05/10/2026
+require('dotenv').config();
 
 const express = require('express');
 const cors = require('cors');
-const mongoose = require('mongoose');   // tambahkan di antara require lainnya
-
-const app = express();
-const PORT = process.env.PORT || 3000;
+const mongoose = require('mongoose');
 
 function logger(req, res, next) {
   const waktu = new Date().toISOString();
@@ -29,12 +26,15 @@ function errorHttp(status, message) {
   return err;
 }
 
-const { notFoundHandler, errorHandler } = require('./middlewares/errorHandler');
 
+// Import handler & routes
+const { notFoundHandler, errorHandler } = require('./middlewares/errorHandler');
 const mahasiswaRoutes = require('./routes/mahasiswaRoutes');
 const fakultasRoutes = require('./routes/fakultasRoutes');
-const prodiRoutes = require('./routes/prodiRoutes');   // bersama require lainnya
+const prodiRoutes = require('./routes/prodiRoutes');
 
+const app = express();
+const PORT = process.env.PORT || 3000;
 
 // ---------- Middleware global ----------
 app.use(logger);
@@ -43,39 +43,30 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
 }));
 
-// Middleware agar req.body (JSON) dapat dibaca
-app.use(express.json());
+app.use(express.json()); // Cukup sekali di sini
 
-// ---------- Route dasar ----------
-app.use('/mahasiswa', mahasiswaRoutes);
-app.use('/fakultas', fakultasRoutes);
-app.use('/prodi', prodiRoutes);                 
-app.use(express.json());
-
-// ---------- Route dasar ----------
+// ---------- Route Utama ----------
 app.get('/', (req, res) => {
   res.send('Server Express.js berjalan!');
 });
 
-// ---------- Route per modul ----------
 app.use('/mahasiswa', mahasiswaRoutes);
 app.use('/fakultas', fakultasRoutes);
 app.use('/prodi', prodiRoutes);
 
-// ---------- Handler 404 dan error handler (paling bawah) ----------
+// ---------- Error Handler (Wajib Paling Bawah) ----------
 app.use(notFoundHandler);
 app.use(errorHandler);
 
-app.use(notFoundHandler);
-app.use(errorHandler);
-
-
+// ---------- Koneksi Database & Server ----------
 mongoose.connect(process.env.DB_URI)
   .then(() => {
     console.log('Terhubung ke MongoDB');
     app.listen(PORT, () => console.log(`Server berjalan di http://localhost:${PORT}`));
   })
   .catch((err) => {
-    console.error('Gagal terhubung:', err.message);
+    console.error('Gagal terhubung ke MongoDB:', err.message);
     process.exit(1);
   });
+
+// npm install express mongoose dotenv cors
