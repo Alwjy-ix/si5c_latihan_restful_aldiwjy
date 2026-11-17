@@ -33,6 +33,10 @@ const mahasiswaRoutes = require('./routes/mahasiswaRoutes');
 const fakultasRoutes = require('./routes/fakultasRoutes');
 const prodiRoutes = require('./routes/prodiRoutes');
 
+if (!process.env.JWT_SECRET) {
+  console.error('JWT_SECRET belum diisi di .env');
+  process.exit(1);
+}
 const app = express();
 const PORT = process.env.PORT || 3000;
 
