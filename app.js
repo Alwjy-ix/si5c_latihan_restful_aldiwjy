@@ -32,6 +32,7 @@ const { notFoundHandler, errorHandler } = require('./middlewares/errorHandler');
 const mahasiswaRoutes = require('./routes/mahasiswaRoutes');
 const fakultasRoutes = require('./routes/fakultasRoutes');
 const prodiRoutes = require('./routes/prodiRoutes');
+const authRoutes = require('./routes/authRoutes');
 
 if (!process.env.JWT_SECRET) {
   console.error('JWT_SECRET belum diisi di .env');
@@ -49,14 +50,22 @@ app.use(cors({
 
 app.use(express.json()); // Cukup sekali di sini
 
+// Express 5: req.body bernilai undefined bila request tidak membawa body JSON
+app.use((req, res, next) => {
+  req.body ??= {};
+  next();
+});
+
 // ---------- Route Utama ----------
 app.get('/', (req, res) => {
   res.send('Server Express.js berjalan!');
 });
 
+
 app.use('/mahasiswa', mahasiswaRoutes);
 app.use('/fakultas', fakultasRoutes);
 app.use('/prodi', prodiRoutes);
+app.use('/auth', authRoutes);  
 
 // ---------- Error Handler (Wajib Paling Bawah) ----------
 app.use(notFoundHandler);
